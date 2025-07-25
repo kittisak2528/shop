@@ -13,6 +13,8 @@ import data from "./data.json"
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import Cookies from 'js-cookie'
+import LoginPage from "../login/page"
+import AddProductPage from "../addproduct/page"
 
 export default function Page() {
   const [user, setUser] = useState<{
@@ -24,6 +26,7 @@ export default function Page() {
   const router = useRouter()
   useEffect(() => {
     const token = Cookies.get('token')
+    console.log("token", token)
     fetch('/api/me', {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -61,18 +64,20 @@ export default function Page() {
       <AppSidebar user={user} variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        <div className="flex flex-1 flex-col">
-          <div className="@container/main flex flex-1 flex-col gap-2">
-            <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
-              <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
-              </div>
-              <DataTable data={data} />
-            </div>
-          </div>
-        </div>
+        <AddProductPage />
       </SidebarInset>
     </SidebarProvider>
   )
 }
+
+        // <div className="flex flex-1 flex-col">
+        //   <div className="@container/main flex flex-1 flex-col gap-2">
+        //     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+        //       <SectionCards />
+        //       <div className="px-4 lg:px-6">
+        //         <ChartAreaInteractive />
+        //       </div>
+        //       <DataTable data={data} />
+        //     </div>
+        //   </div>
+        // </div>

@@ -2,7 +2,10 @@ import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
-import { prisma } from '@/lib/prisma'
+// import { prisma } from '@/lib/prisma'
+import prisma from '@/lib/prisma'  // ใช้ prisma ที่ import มาจาก lib/prisma.ts
+
+
 
 
 export async function POST(request: Request) {
