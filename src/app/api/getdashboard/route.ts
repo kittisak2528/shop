@@ -8,28 +8,34 @@ export async function GET(req: NextRequest) {
     const token = req.headers.get('authorization')?.replace('Bearer ', '')
 
     if (!token) {
+        console.error('No token provided')
         return NextResponse.json({ error: 'No token' }, { status: 401 })
     }
 
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { userId: number }
-
-        const user = await prisma.user.findUnique({
-            where: { id: decoded.userId },
-            select: {
-                firstName: true, 
-                lastName: true, 
-                username: true,
-                email: true,
+        const product = await prisma.product.findMany({
+            select: { 
+                id: true,
+                name: true, 
+                price: true, 
+                image: true,
+                userId: true
             }
-            
         })
+        const user = await prisma.user.findMany({
+            select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+            }
+        })
+        console.log('Fetched products:', product)
 
-        if (!user) {
+        if (!product) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 })
         }
 
-        return NextResponse.json({ user })
+        return NextResponse.json({ product, user })
     } catch (err) {
         return NextResponse.json({ error: 'Invalid token' }, { status: 401 })
     }

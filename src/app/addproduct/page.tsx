@@ -35,7 +35,7 @@ export default function AddProductPage() {
             form.append('image', formData.image)
         }
 
-        const res = await fetch('/api/products', {
+        const res = await fetch('/api/addproducts', {
             method: 'POST',
             body: form,
         })

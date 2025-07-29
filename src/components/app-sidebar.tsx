@@ -41,42 +41,36 @@ type Props = {
     avatar?: string;
   } | null;
   variant: "inset";
+  onMenuChange: (menu: string) => void; // ✅ เพิ่มฟังก์ชันนี้
 };
 const data = {
   navMain: [
     {
       title: "Dashboard",
-      url: "/additem",
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "/register",
+      title: "AddProduct",
       icon: IconListDetails,
     },
     {
       title: "Analytics",
-      url: "#",
       icon: IconChartBar,
     },
     {
       title: "Projects",
-      url: "#",
       icon: IconFolder,
     },
     {
       title: "Team",
-      url: "#",
       icon: IconUsers,
     },
     {
       title: "Data",
-      url: "#",
       icon: IconDatabase,
     },
     {
       title: "Reports",
-      url: "#",
       icon: IconReport,
     },
   ],
@@ -165,7 +159,7 @@ const data = {
   ],
 }
 
-export function AppSidebar({ user, variant }: Props) {
+export function AppSidebar({ user, variant, onMenuChange }: Props) {
   return (
     <Sidebar collapsible="offcanvas" variant={variant}>
       <SidebarHeader>
@@ -175,18 +169,20 @@ export function AppSidebar({ user, variant }: Props) {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
+              <a href="/">
                 <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Acme Inc.</span>
+                <span className="text-base font-semibold">
+                  {user ? `${user.firstName} ${user.lastName}` : "Guest"}
+                </span>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={data.navMain} onMenuChange={onMenuChange} />
+        {/* <NavDocuments items={data.documents} /> */}
+        {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user!} />

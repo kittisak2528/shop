@@ -26,7 +26,7 @@ export default function LoginPage() {
                     secure: true,            // ส่ง cookie เฉพาะ HTTPS เท่านั้น (ควรเปิดตอนโปรดักชัน)
                     sameSite: 'Strict',      // ป้องกัน CSRF
                 })
-                router.push('/dashboard')  // เปลี่ยนเส้นทางไปหน้า dashboard
+                router.push('/')  // เปลี่ยนเส้นทางไปหน้า dashboard
             } else {
                 const data = await res.json()
                 alert(data.error)
