@@ -1,11 +1,16 @@
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { SectionCards } from "@/components/section-cards"
 import { useEffect, useState } from "react"
 import Cookies from 'js-cookie'
 import { useRouter } from 'next/navigation'
 import { Product, User } from "@prisma/client"
 
+type ResponseData = {
+    product: Product[],
+    user: User[],
+    lastUpdated: string
+}
 const DashBoard = () => {
+    const [lastUpdated, setLastUpdated] = useState<string | null>(null)
     const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [products, setProducts] = useState<Product[]>([
@@ -15,6 +20,7 @@ const DashBoard = () => {
             price: 0,
             image: '',
             userId: 0,
+            createdAt: new Date(),
         }
     ] as Product[]) // ประกาศ type array
     const [user, setUser] = useState<User[]>([
@@ -31,37 +37,51 @@ const DashBoard = () => {
             router.push('/login')
             return
         }
-        fetch('/api/getdashboard', {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        })
-            .then(async (res) => {
-                if (res.ok) {
-                    const data = await res.json()
-                    console.log('Fetched product data:', data)
-                    setProducts(data.product || []) // ตรวจสอบว่ามี product หรือไม่
-                    setUser(data.user || []) // ตรวจสอบว่ามี user หรือไม่
-                } else {
-                    Cookies.remove('token')
-                    router.push('/login')
-                }
+
+        const fetchData = async () => {
+            const res = await fetch(`/api/getdashboard?lastUpdated=${lastUpdated ?? ''}`, {
+                headers: { Authorization: `Bearer ${token}` },
             })
-            .catch(() => {
+
+            const data = await res.json()
+
+            if (res.ok && data.status === 'not_modified') {
+                console.log('status: ', data.status)
+                console.log('🔁 No change in data')
+                return
+            }
+
+            if (res.ok) {
+                setProducts(data.product || [])
+                setUser(data.user || [])
+                setLastUpdated(data.lastUpdated)
+            } else {
                 Cookies.remove('token')
                 router.push('/login')
-            })
-            .finally(() => {
-                setLoading(false)
-            })
-    }, [router])
+            }
+
+            setLoading(false)
+        }
+
+        fetchData()
+    }, [router, lastUpdated])
     if (loading) return <div className="p-10 text-center">กำลังโหลด...</div>
     return (
         <div className="">
             {products.map((p) => (
                 <p key={p.id}>
-                    id: {p.id} - name: {p.name} - price: {p.price}  - userId: {p.userId}
+                    id: {p.id}
+                    - name: {p.name}
+                    - price: {p.price}
+                    - userId: {p.userId}
+                    เวลา: {new Date(p.createdAt).toLocaleTimeString('th-TH', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false,
+                    })}
                 </p>
+
             ))}
             <div className="flex flex-1 flex-col">
                 <div className="@container/main flex flex-1 flex-col gap-2">

@@ -3,12 +3,16 @@ import { useState } from 'react'
 import { Plus, Minus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-export default function AddProductPage() {
+export default function AddNewProductPage() {
     const router = useRouter()
     const [formData, setFormData] = useState({
         name: '',
-        price: '40',
+        price: "40",
         panelCount: 0,
         image: null as File | null,
     })
@@ -17,6 +21,11 @@ export default function AddProductPage() {
         const { name, value } = e.target
         setFormData({ ...formData, [name]: name === 'panelCount' ? Number(value) : value })
     }
+    const handleSelectChange = (value: string) => {
+        setFormData(prev => ({ ...prev, price: value }))
+    }
+
+
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] || null
@@ -43,7 +52,7 @@ export default function AddProductPage() {
         const data = await res.json()
         if (res.ok) {
             toast.success('เพิ่มสินค้าเรียบร้อยแล้ว')
-            setFormData({ name: '', price: '40', panelCount: 0, image: null })  // รีเซ็ตฟอร์ม ถ้าต้องการ
+            setFormData({ name: '', price: "40", panelCount: 0, image: null })  // รีเซ็ตฟอร์ม ถ้าต้องการ
         } else {
             toast.error(data.error || 'เกิดข้อผิดพลาด')
         }
@@ -54,8 +63,8 @@ export default function AddProductPage() {
             <h1 className="text-xl font-bold mb-4">เพิ่มสินค้า</h1>
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block font-medium">ชื่อสินค้า</label>
-                    <input
+                    <Label className="block font-medium">ชื่อสินค้า</Label>
+                    <Input
                         type="text"
                         name="name"
                         value={formData.name}
@@ -66,23 +75,29 @@ export default function AddProductPage() {
                 </div>
 
                 <div>
-                    <label className="block font-medium">ราคา</label>
-                    <select
+                    <Label className="block font-medium">ราคา</Label>
+                    <Select
                         name="price"
                         value={formData.price}
-                        onChange={handleChange}
-                        className="w-full border rounded p-2"
+                        onValueChange={handleSelectChange}
                     >
-                        <option value="35">35 บาท</option>
-                        <option value="40">40 บาท</option>
-                        <option value="80">80 บาท</option>
-                    </select>
+                        <SelectTrigger className="w-full border rounded p-2">
+                            <SelectValue placeholder="เลือกราคา" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectGroup>
+                                <SelectItem value="35">35 บาท</SelectItem>
+                                <SelectItem value="40">40 บาท</SelectItem>
+                                <SelectItem value="80">80 บาท</SelectItem>
+                            </SelectGroup>
+                        </SelectContent>
+                    </Select>
                 </div>
 
                 <div>
-                    <label className="block font-medium mb-1">จำนวนแผง</label>
+                    <Label className="block font-medium mb-1">จำนวนแผง</Label>
                     <div className="flex items-center space-x-2">
-                        <button
+                        <Button
                             type="button"
                             onClick={() =>
                                 setFormData((prev) => ({
@@ -90,12 +105,12 @@ export default function AddProductPage() {
                                     panelCount: Math.max(1, prev.panelCount - 1),
                                 }))
                             }
-                            className="p-2 bg-gray-200 rounded hover:bg-gray-300"
+                            className="p-2 text-black bg-gray-200 rounded hover:bg-gray-300"
                         >
                             <Minus size={16} />
-                        </button>
+                        </Button>
 
-                        <input
+                        <Input
                             type="number"
                             name="panelCount"
                             value={formData.panelCount}
@@ -104,7 +119,7 @@ export default function AddProductPage() {
                             min={1}
                         />
 
-                        <button
+                        <Button
                             type="button"
                             onClick={() =>
                                 setFormData((prev) => ({
@@ -112,16 +127,16 @@ export default function AddProductPage() {
                                     panelCount: prev.panelCount + 1,
                                 }))
                             }
-                            className="p-2 bg-gray-200 rounded hover:bg-gray-300"
+                            className="p-2 text-black bg-gray-200 rounded hover:bg-gray-300"
                         >
                             <Plus size={16} />
-                        </button>
+                        </Button>
                     </div>
                 </div>
 
                 <div>
-                    <label className="block font-medium">อัปโหลดรูป</label>
-                    <input
+                    <Label className="block font-medium">อัปโหลดรูป</Label>
+                    <Input
                         type="file"
                         accept="image/*"
                         onChange={handleFileChange}
@@ -129,12 +144,12 @@ export default function AddProductPage() {
                     />
                 </div>
 
-                <button
+                <Button
                     type="submit"
                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
                 >
                     บันทึกสินค้า
-                </button>
+                </Button>
             </form>
         </div>
     )

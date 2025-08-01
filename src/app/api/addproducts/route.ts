@@ -6,9 +6,8 @@ import { randomUUID } from 'crypto'
 import jwt from 'jsonwebtoken'
 
 export async function POST(req: Request) {
-    const token = req.headers.get('cookie')?.split('; ').find((c) => c.startsWith('token='))?.split('=')[1]
-
-    if (!token) {
+    const cookieHeader = req.headers.get('cookie') || ''
+    const token = cookieHeader.split('; ').find(c => c.startsWith('token='))?.split('=')[1]; if (!token) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -30,29 +29,45 @@ export async function POST(req: Request) {
     let imagePath = ''
 
     if (file && file.size > 0) {
-        const fileName = `${file.name}`
+        if (!file.type.startsWith('image/')) {
+            return NextResponse.json({ error: 'File type not supported' }, { status: 400 })
+        }
+        if (file.size > 50 * 1024 * 1024) {
+            return NextResponse.json({ error: 'File size exceeds 50MB limit' }, { status: 400 })
+        }
+        const rawName = file.name
+        const sanitizedFileName = rawName
+            .normalize("NFD")                        // แปลงให้เป็นรูปแบบ Unicode มาตรฐาน
+            .replace(/[\u0300-\u036f]/g, "")        // ลบสระและวรรณยุกต์
+            .replace(/\s+/g, "_")                   // แทนที่ space ด้วย "_"
+            .replace(/[^\w.-]/g, "")                // ลบอักขระพิเศษที่ไม่ใช่ a-z, 0-9, ., -
 
-        const arrayBuffer = await file.arrayBuffer()
-        const buffer = Buffer.from(arrayBuffer)
+        const fileName = `${Date.now()}-${sanitizedFileName}`
 
-        // อัปโหลดไฟล์ไป Supabase Storage bucket ชื่อ 'product'
-        const { data, error } = await supabase.storage
-            .from('product')
-            .upload(fileName, buffer, {
-                contentType: file.type,
-                upsert: false,
-            })
+        try {
+            const arrayBuffer = await file.arrayBuffer()
+            const buffer = Buffer.from(arrayBuffer)
 
-        if (error) {
-            console.error('Error uploading file:', error)
+            const { data, error } = await supabase.storage
+                .from('product')
+                .upload(fileName, buffer, {
+                    contentType: file.type,
+                    upsert: false,
+                })
+
+            if (error) {
+                console.error('Error uploading file:', error)
+                return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
+            }
+
+            imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product/${fileName}`
+        } catch (uploadError) {
+            console.error('Upload error:', uploadError)
             return NextResponse.json({ error: 'Upload failed' }, { status: 500 })
         }
-
-        // สร้าง URL สำหรับเรียกดูไฟล์รูป
-        imagePath = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/product/${fileName}`
     }
-    try {
 
+    try {
         const product = await prisma.product.create({
             data: {
                 name,
@@ -64,8 +79,8 @@ export async function POST(req: Request) {
         })
 
         return NextResponse.json({ message: 'Product created', product })
-    } catch (error) {
-        console.error('❌ Prisma error:', error)
+    } catch (dbError) {
+        console.error('Database error:', dbError)
         return NextResponse.json({ error: 'Database error' }, { status: 500 })
     }
 }

@@ -2,6 +2,7 @@
 
 import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
 
+
 import { Button } from "@/components/ui/button"
 import {
   SidebarGroup,
@@ -12,11 +13,12 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 
+
 export function NavMain({ onMenuChange, items }: {
   onMenuChange: (menu: string) => void;
   items: {
     title: string
-    icon?: Icon
+    icon?: React.ElementType;
   }[]
 }) {
   return (

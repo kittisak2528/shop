@@ -32,6 +32,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Package, PackagePlus } from "lucide-react"
 
 type Props = {
   user: {
@@ -50,12 +51,12 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "AddProduct",
-      icon: IconListDetails,
+      title: "AddNewProduct",
+      icon: PackagePlus,
     },
     {
-      title: "Analytics",
-      icon: IconChartBar,
+      title: "Product",
+      icon: Package,
     },
     {
       title: "Projects",

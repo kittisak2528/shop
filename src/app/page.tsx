@@ -2,19 +2,18 @@
 
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
+import { SidebarInset, SidebarProvider, useSidebar } from "@/components/ui/sidebar"
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 import Cookies from 'js-cookie'
-import AddProductPage from "./addproduct/page"
 import LoginPage from "./login/page"
 import RegisterPage from "./register/page"
 import DashBoard from "@/component/dashboard"
-
-
+import AddNewProductPage from "./addnewproduct/page"
+import ProductPage from "./product/page"
 
 export default function Page() {
-  const [currentPage, setCurrentPage] = useState('Dashboard')
+  const [currentPage, setCurrentPage] = useState('Product')
   const [loading, setLoading] = useState(true)
   const router = useRouter()
   const [user, setUser] = useState<{
@@ -40,7 +39,6 @@ export default function Page() {
       .then(async (res) => {
         if (res.ok) {
           const data = await res.json()
-          console.log('Fetched user data:', data)
           setUser({
             ...data.user,
             avatar: data.user.avatar ?? "/avatars/default.jpg",
@@ -60,35 +58,64 @@ export default function Page() {
   }, [router])
 
   if (loading) return <div className="p-10 text-center">กำลังโหลด...</div>
+
+  return (
+    <SidebarProvider
+      style={{
+        "--sidebar-width": "calc(var(--spacing) * 72)",
+        "--header-height": "calc(var(--spacing) * 12)",
+      } as React.CSSProperties}
+    >
+      <PageContent currentPage={currentPage} setCurrentPage={setCurrentPage} user={user} />
+    </SidebarProvider>
+  )
+}
+
+function PageContent({
+  currentPage,
+  setCurrentPage,
+  user,
+}: {
+  currentPage: string
+  setCurrentPage: (menu: string) => void
+  user: {
+    firstName: string
+    lastName: string
+    email: string
+    avatar: string
+  } | null
+}) {
+  const { setOpenMobile } = useSidebar()
+
+  const handleMenuChange = (menu: string) => {
+    setCurrentPage(menu)
+    setOpenMobile(false) // ✅ ปิด sidebar หลังเลือกเมนู
+  }
+
   const renderContent = () => {
     switch (currentPage) {
       case 'Dashboard':
         return <DashBoard />
-      case 'AddProduct':
-        return <AddProductPage />
+      case 'AddNewProduct':
+        return <AddNewProductPage />
+      case 'Product':
+        return <ProductPage />
       case 'list':
         return <LoginPage />
       case 'overview':
         return <div className="p-10 text-center">Dashboard Overview</div>
       default:
-        return <RegisterPage />
+        return <div className="p-10 text-center">ไม่พบหน้า</div>
     }
   }
+
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "calc(var(--spacing) * 72)",
-          "--header-height": "calc(var(--spacing) * 12)",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar user={user} onMenuChange={setCurrentPage} variant="inset" />
+    <>
+      <AppSidebar user={user} onMenuChange={handleMenuChange} variant="inset" />
       <SidebarInset>
         <SiteHeader />
-        
         {renderContent()}
       </SidebarInset>
-    </SidebarProvider>
+    </>
   )
 }

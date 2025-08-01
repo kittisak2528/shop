@@ -21,7 +21,7 @@ export default function LoginPage() {
             if (res.ok) {
                 const data = await res.json()
                 Cookies.set('token', data.token, {
-                    expires: 1,
+                    expires: 10/60/24,           // หมดอายุใน 10 นาที
                     path: '/',               // ให้ cookie มีผลทุกหน้า
                     secure: true,            // ส่ง cookie เฉพาะ HTTPS เท่านั้น (ควรเปิดตอนโปรดักชัน)
                     sameSite: 'Strict',      // ป้องกัน CSRF
