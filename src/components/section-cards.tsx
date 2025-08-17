@@ -96,7 +96,6 @@ export function SectionCards({ product, user }: { product: productType[], user: 
                   className="object-contain rounded-md border"
                 />
                 <div className="text-center justify-around">
-                  <CardTitle className="text-lg font-semibold mt-2">{p.id}</CardTitle>
                   <CardTitle className="text-lg font-semibold mt-2">{p.name}</CardTitle>
                   <CardDescription className="text-sm text-gray-600">
                     ราคา {p.price} บาท
@@ -141,7 +140,7 @@ export function SectionCards({ product, user }: { product: productType[], user: 
                   className="w-20 h-20 object-contain rounded-md border"
                 />
                 <div className="flex flex-col flex-1 min-w-0">
-                  <CardTitle className="text-base font-semibold">{p.id+" "}{p.name}</CardTitle>
+                  <CardTitle className="text-base font-semibold">{p.name}</CardTitle>
                   <CardDescription className="text-sm text-gray-600">
                     ราคา {p.price} บาท
                   </CardDescription>
